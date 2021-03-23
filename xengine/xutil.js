@@ -3,528 +3,445 @@
  * Copyright 2012 xiangfeng
  * Released under the MIT license
  * Please contact to xiangfenglf@163.com if you hava any question 
- * xengine ¹¤¾ßÀà
+ * xengine ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  */
- (function(win){
-   //ä¯ÀÀÆ÷¹¤¾ßÀà
-   var _bUtil = win.BrowseUtil = {
-       //»ñÈ¡ä¯ÀÀÆ÷ÊÊºÏµÄcssÇ°×º
-	   getPrefix4CSS:function()
-	   {
-	   }
-	 };   
-   //JSON¹¤¾ßÀà
-   var _jUtil = win.JSONUtil = {
-	   isEmpty:function(obj)
-	   {
-		   for(var i in obj)
-		   {			  
-			   return false;			
-		   }
-		   return true;
-	   }
-   }
-   //×ÊÔ´¹¤¾ßÀà
-   var _rUtil = win.ResUtil = {
-     loadFile:function(fileURL,type,fn,sync)
-	 {
-		var ct = "text/xml;charset=UTF-8";
-		var dt = type||"json";
-		if(dt=="json")
-		{
-			ct = "text/x-json;charset=UTF-8";
-		}
-		$.ajax(
-				 {
-					  url:fileURL,
-					  async:(sync==null?false:sync),					 
-					  type:"POST",				  
-					  dataType:dt,
-					  contentType:ct,
-					  error:function()
-					   {
-						  console.log("Load File ["+fileURL+"] Error!");
-					   },
-					  success:function(data)
-					   {
-						  console.log("Load File ["+fileURL+"] Successful!")						 
-						  fn(data);	
-					   }
-				 }
-			  );
-	 }
-   }
-   //¶ÓÁÐÀà
-   var _queue = win.Queue = function(cap){
-	   var _MAXDEF  = 9,
-		capacity = cap+1,
-		head = 0,
-		tail = 0,
-		data = [];
-		this.empty = function(){ data.length = 0 ;}
-		this.isEmpty = function(){ return (head==tail); }
-		this.isFull = function(){ return  ((tail+1)%capacity == head); }
-		this.add = function(val) 
-		{ 
-			if(this.isFull())
-			{
-				return -1;
-			}
-			data[tail] = val;
-			tail = (tail+1)%capacity;
-		};
-		this.remove = function()
-		{
-			var result = null;
-			if(!this.isEmpty())
-			{
-				result = data[head];
-				head = (head+1)%capacity;
-			}
-			return result;
-		};
-   }  
-   //Êý×é¹¤¾ßÀà
-   var _arrUtil = win.ArrayUtil = {
-	   //ÒÆ³öarrÖÐË÷ÒýÎªidxµÄÏîÄ¿
-	   removeByIdx:function(arr,idx)
-       {
-		  arr&&arr.splice(idx,1);        
-	   },
-	   removeFn:function(arr,fn)
-	   {
-         var idx=-1;
-	     for(var aIdx=0;aIdx<arr.length;aIdx++)
-		 {
-		   if (fn(arr[aIdx]))
-		   {
-			   idx = aIdx;
-			   break;
-		   }
-	     }
-		 if(idx!=-1)
-			arr.splice(idx,1);
-	   },
-	   insert:function(arr,pos,ele)
-	   {
-		  if((arr.length===0&&pos===0)||(pos===arr.length))
-		  {
-			  this.push(ele);
-		  }
-		  else if(pos<0||pos>arr.length)
-		  {
-			  return;
-		  }
-		  else
-		  {
-		   var len = arr.length-pos;
-		   arr.splice(pos,len,ele,arr.slice(pos));
-		  }
-	   },
-	   fillWith:function(arr,val)
-	   {
-		   for(var i=0,len=arr.length;i<len;i++)
-		   {
-			   arr[i]=val;
-		   }
-	   }
-   }
-   //ÊýÑ§¹¤¾ßÀà
-   var MathUtil = win.MathUtil = {
-      deg2rad:function(angle)
-       {
-         return angle*0.017453292;
-       },
-      rad2deg:function(rad)
-       {
-         return rad*57.29578;
-       },
-	  lerp:function(a,b,r)
-	  {
-		return a*(1-r)+b*r;
-	  },
-      //return a num between -range to range;
-	  randRange:function(range)
-	  {
-        return (Math.random()-0.5)*range*2;
-	  },
-      //x>=min && x<max
-	  randInt:function(min,max)
-       { 
-		max=max||0;
-		min=min||0;
-        var step=Math.abs(max-min);
-        var st = (arguments.length<2)?0:min;
-	    var result ;
-	    result = st+(Math.ceil(Math.random()*step))-1;
-	    return result;
-       },
-	  dotV2:function(v1,v2)
-	   {
-		   return v1.x*v2.x+v1.y*v2.y;
-	   }, 
-      lenV2:function(v)
-	   {
-           return Math.sqrt(v.x*v.x+v.y*v.y);
-	   },
-      normV2:function(v)
-	   {
-		   var len = MathUtil.lenV2(v),
-			   rlen = 1/len;
-		   return {"x":v.x*rlen,"y":v.y*rlen};
-	   },
-      //ÅÐ¶ÏÁ½¸ö¾ØÐÎÊÇ·ñÏà½»
-	  isInRect:function(x1,y1,x2,y2,x3,y3,x4,y4)
-	  {
-		  if(x1>x4||x2<x3)return false;
-          if(y1>y4||y2<y3)return false;
-          return true;
-	  },
-      //»ñÈ¡Á½¸ö¾ØÐÎÏà½»ÇøÓò
-	  getInRect:function(x1,y1,x2,y2,x3,y3,x4,y4)
-	  {
-          return [Math.max(x1,x3),Math.max(y1,y3),Math.min(x2,x4),Math.min(y2,y4)];
-	  },
-      //µãÊÇ·ñÔÚRectÖÐ
-	  pInRect:function(x1,y1,x2,y2,w,h)
-	  {
-		  return x1>=x2&&x1<=x2+w&&y1>=y2&&y1<=y2+h;
-	  },
-      //ÒÔÆÁÄ»ÉÏ×óÉÏ½ÇÎªÔ­µã£¬x1,y1Îª×ø±êµÄµã×ªÏòÒÔox,oyÎªÔ­µãµÄ×ø±ê
-	  mapSToCoord:function(x1,y1,ox,oy)
-	  {
-		  return [x1-ox,y1-oy];
-	  },
-      //¼ÆËãpolyArrÔÚaxisÉÏµÄÍ¶Ó°,polyArrÊÇÒ»ÏµÁÐµã×ø±êµÄ¼¯ºÏ,Êý×é±íÊ¾
-	  calcProj:function(axis,polyArr)
-	   {
-          var v = {"x":polyArr[0],"y":polyArr[1]};
-		  var d,min,max;
-		  min=max = MathUtil.dotV2(axis,v);
-		  for(var i=2;i<polyArr.length-1;i+=2)
-		  {
-			  v.x=polyArr[i];
-			  v.y=polyArr[i+1];
-			  d = MathUtil.dotV2(axis,v);
-			  min = (d<min)?d:min;
-			  max = (d>max)?d:max;
-		  }
-		  return [min,max];
-	   },
-       //¼ÆËãÍ¬Ò»¸öÖáÉÏÏß¶ÎµÄ¾àÀës1(min1,max1),s2(min2,max2),Èç¹û¾àÀëÐ¡ÓÚ0Ôò±íÊ¾Á½Ïß¶ÎÓÐÏà½»; 
-       segDist:function(min1,max1,min2,max2)
-	   {
-		   if(min1<min2)
-		   {
-			   return min2-max1;
-		   }
-		   else
-		   {
-			   return min1-max2;
-		   }
-	   },
-	   //ÅÐ¶ÏÁ½¸ö¶à±ßÐÎÊÇ·ñÏà½»Åö×²,p1,p2ÓÃÓÚ±£´æ¶à±ßÐÎµãµÄÊý×é
-       isCollide:function(p1,p2)
-	   {
-		   //¶¨Òå·¨ÏòÁ¿
-		   var e = {"x":0,"y":0};		   
-		   var p = p1,idx=0,len1=p1.length,len2=p2.length;
-		   for(var i=0,len = len1+len2;i<len-1;i+=2)
-		   {
-			   idx = i;
-			   //¼ÆËãÁ½¸ö¶à±ßÐÎÃ¿Ìõ±ß
-			   if(i>len1)
-			   {
-				   p=p2;
-                   idx=(i-len1);
-			   }	
-			   if(i==p.length-2)
-			   {
-				   px=p[0]-p[idx];
-				   py=p[1]-p[idx+1];
-			   }
-			   else
-			   {
-			       px = p[idx+2]-p[idx],
-			       py = p[idx+3]-p[idx+1];
-			   }
-			   //µÃµ½±ßµÄ·¨ÏòÁ¿ 
-			   e.x = -py;
-			   e.y = px;
-			   //¼ÆËãÁ½¸ö¶à±ßÐÎÔÚ·¨ÏòÁ¿ÉÏµÄÍ¶Ó°
-			   var pp1 = MathUtil.calcProj(e,p1);
-			   var pp2 = MathUtil.calcProj(e,p2);
-               //¼ÆËãÁ½¸öÏß¶ÎÔÚ·¨ÏòÁ¿ÉÏ¾àÀë£¬Èç¹û´óÓÚ0Ôò¿ÉÒÔÍË³ö£¬±íÊ¾ÎÞÏà½»
-			   if(MathUtil.segDist(pp1[0],pp1[1],pp2[0],pp2[1])>0)
-			   {
-				   return false;
-			   }
-		   }
-		   return true;
-	   }	   
-   }
-   //µØÍ¼¹¤¾ß
-   var _MapUtil = win.MapUtil = 
-   {
-	  //¶¨Òåµã¶ÔÏó
-	  Point:function(x,y)
-	   {
-           this.x = x;
-	       this.y = y;
-	       this.parent = null;
-	       this.f = 0;
-	       this.g = 0;
-	       this.h=0;
-	       //µ±Ç°µã×´Ì¬£¬0£º±íÊ¾ÔÚopenlist 1:±íÊ¾closelist,-1±íÊ¾»¹Ã»´¦Àí
-	       this.state=-1;
-		   //flag±íÃ÷¸ÃµãÊÇ·ñ¿ÉÍ¨¹ý
-	       this.flag = 0;
-	   },
-       //²úÉúËæ»úÃÔ¹¬
-       primMaze:function(r,c)
-       {
-		 //³õÊ¼»¯Êý×é
-		 function init(r,c)
-		 {
-			var a = new Array(2*r+1);
-			//È«²¿ÖÃ1
-			for(var i=0,len=a.length;i<len;i++)
-			{
-			   var cols = 2*c+1;
-			   a[i]= new Array(cols);
-			   ArrayUtil.fillWith(a[i],1);
-			}
-			//ÖÐ¼ä¸ñ×ÓÎª0
-			for(var i=0;i<r;i++)
-			 for(var j=0;j<c;j++)
-				{
-				   a[2*i+1][2*j+1] = 0;
-				}
-			return a;
-		 }
-		 //´¦ÀíÊý×é£¬²úÉú×îÖÕµÄÊý×é
-		 function process(arr)
-		 {
-		   //acc´æ·ÅÒÑ·ÃÎÊ¶ÓÁÐ£¬noacc´æ·ÅÃ»ÓÐ·ÃÎÊ¶ÓÁÐ
-		   var acc = [],noacc = [];
-		   var r = arr.length>>1,c=arr[0].length>>1;
-		   var count = r*c;
-		   for(var i=0;i<count;i++){noacc[i]=0;}
-		   //¶¨Òå¿Õµ¥ÔªÉÏÏÂ×óÓÒÆ«ÒÆ
-		   var offs=[-c,c,-1,1],offR=[-1,1,0,0],offC=[0,0,-1,1];	  
-		   //Ëæ»ú´ÓnoaccÈ¡³öÒ»¸öÎ»ÖÃ
-		   var pos = MathUtil.randInt(count);
-		   noacc[pos]=1;
-		   acc.push(pos);	   
-		   while(acc.length<count)
-		   {	    
-			 var ls = -1,offPos = -1;
-			 offPos = -1;
-			 //ÕÒ³öposÎ»ÖÃÔÚ¶þÎ¬Êý×éÖÐµÄ×ø±ê
-			 var pr = pos/c|0,pc=pos%c,co=0,o=0;
-			 //Ëæ»úÈ¡ÉÏÏÂ×óÓÒËÄ¸öµ¥Ôª
-			 while(++co<5)
-			 {
-			   o = MathUtil.randInt(0,5);
-			   ls =offs[o]+pos;
-			   var tpr = pr+offR[o];
-			   var tpc = pc+offC[o];		   
-			   if(tpr>=0&&tpc>=0&&tpr<=r-1&&tpc<=c-1&&noacc[ls]==0){ offPos = o;break;}		   
-			 }		 		
-			 if(offPos<0)
-			 {
-			 
-				pos = acc[MathUtil.randInt(acc.length)];
-			 }
-			 else
-			 {
-				pr = 2*pr+1;
-				pc = 2*pc+1;
-				//ÏàÁÚ¿Õµ¥ÔªÖÐ¼äµÄÎ»ÖÃÖÃ0
-				arr[pr+offR[offPos]][pc+offC[offPos]]=0;
-				pos = ls;  
-				noacc[pos] = 1;
-				acc.push(pos);
-			 }		
-		   }
-	     }
-	     var a = init(r,c);
-	     process(a);
-	     return a;
-       },
-       //°ÑÆÕÍ¨¶þÎ¬Êý×é(È«²¿ÓÉ1£¬0±íÊ¾)µÄ×ª»»³Éa*ËùÐèÒªµÄµãÊý×é
-	   convertArrToAS:function(arr)
-	   {
-		 var r = arr.length,c=arr[0].length;
-		 var a = new Array(r);
-         for(var i=0;i<r;i++)
-		  {
-			 a[i] = new Array(c);
-			 for(var j=0;j<c;j++)
-		      {
-		        var pos = new MapUtil.Point(i,j);
-                pos.flag = arr[i][j]; 
-		        a[i][j]=pos;
-		      }
-		  }		  
-		 return a;
-	   },
-       //A*Ëã·¨,pathArr±íÊ¾×îºó·µ»ØµÄÂ·¾¶
-	   findPathA:function(pathArr,start,end,row,col)
-	   {
-		//Ìí¼ÓÊý¾Ýµ½ÅÅÐòÊý×éÖÐ
-        function addArrSort(descSortedArr,element,compare)
-		   {
-			  var left = 0;
-			  var right = descSortedArr.length-1;
-			  var idx = -1;
-			  var mid = (left+right)>>1;
-			  while(left<=right)
-			  {
-				 var mid = (left+right)>>1;
-				 if(compare(descSortedArr[mid],element)==1)
-				 {
-					 left = mid+1;
-				 }
-				 else if(compare(descSortedArr[mid],element)==-1)
-				 {
-					 right = mid-1;
-				 }
-				 else
-				 {
-					 break;
-				 }       
-			  }
-			  for(var i = descSortedArr.length-1;i>=left;i--)
-			   {
-				   descSortedArr[i+1] = descSortedArr[i];
-			   }
-			  descSortedArr[left] = element;	 
-			  return idx;
-		   }
-		//ÅÐ¶ÏÁ½¸öµãÊÇ·ñÏàÍ¬
-		function pEqual(p1,p2)
-		{
-			return p1.x==p2.x&&p1.y==p2.y;
-		}
-		//»ñÈ¡Á½¸öµã¾àÀë£¬²ÉÓÃÂü¹þ¶Ù·½·¨
-		function posDist(pos,pos1)
-        {
-          return (Math.abs(pos1.x-pos.x)+Math.abs(pos1.y-pos.y));
+(function(win) {
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    var _bUtil = win.BrowseUtil = {
+        //ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÊºÏµï¿½cssÇ°×º
+        getPrefix4CSS: function() {}
+    };
+    //JSONï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    var _jUtil = win.JSONUtil = {
+            isEmpty: function(obj) {
+                for (var i in obj) {
+                    return false;
+                }
+                return true;
+            }
         }
-		function between(val,min,max)
-        {
-          return (val>=min&&val<=max)
+        //ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    var _rUtil = win.ResUtil = {
+            loadFile: function(fileURL, type, fn, sync) {
+                var ct = "text/xml;charset=UTF-8";
+                var dt = type || "json";
+                if (dt == "json") {
+                    ct = "text/x-json;charset=UTF-8";
+                }
+                $.ajax({
+                    url: fileURL,
+                    async: (sync == null ? false : sync),
+                    type: "GET",
+                    dataType: dt,
+                    contentType: ct,
+                    error: function() {
+                        console.log("Load File [" + fileURL + "] Error!");
+                    },
+                    success: function(data) {
+                        console.log("Load File [" + fileURL + "] Successful!")
+                        fn(data);
+                    }
+                });
+            }
         }
-		//±È½ÏÁ½¸öµãfÖµ´óÐ¡
-        function compPointF(pt1,pt2)
-        {
-         return pt1.f-pt2.f;
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    var _queue = win.Queue = function(cap) {
+            var _MAXDEF = 9,
+                capacity = cap + 1,
+                head = 0,
+                tail = 0,
+                data = [];
+            this.empty = function() { data.length = 0; }
+            this.isEmpty = function() { return (head == tail); }
+            this.isFull = function() { return ((tail + 1) % capacity == head); }
+            this.add = function(val) {
+                if (this.isFull()) {
+                    return -1;
+                }
+                data[tail] = val;
+                tail = (tail + 1) % capacity;
+            };
+            this.remove = function() {
+                var result = null;
+                if (!this.isEmpty()) {
+                    result = data[head];
+                    head = (head + 1) % capacity;
+                }
+                return result;
+            };
         }
-		//´¦Àíµ±Ç°½Úµã
-        function processCurrpoint(arr,openList,row,col,currPoint,destPoint)
-		   {
-			  //get up,down,left,right direct
-			  var ltx = currPoint.x-1;
-			  var lty = currPoint.y-1;			  
-			  for(var i=0;i<3;i++)
-				for(var j=0;j<3;j++)
-				  {
-					 var cx = ltx+i;
-					 var cy = lty+j;
-					 if((cx==currPoint.x||cy==currPoint.y)&&between(ltx,0,row-1)&&between(lty,0,col-1))
-					   {
-						  var tp = arr[cx][cy];				 
-						  if(tp.flag == 0 && tp.state!=1)
-							{			
-							  if(pEqual(tp,destPoint)) 
-							  {
-								 tp.parent = currPoint;
-								 return true;
-							  }
-							  if(tp.state == -1)
-							   {  		
-								  tp.parent = currPoint;
-								  tp.g= 1+currPoint.g;
-								  tp.h= posDist(tp,destPoint);
-								  tp.f = tp.h+tp.f;
-								  tp.state = 0
-								  addArrSort(openList,tp,compPointF);						  
-							   }
-							  else
-							   {
-								  var g = 1+currPoint.g
-								  if(g<tp.g)
-								  {
-									 tp.parent = currPoint;
-									 tp.g = g;
-									 tp.f = tp.g+tp.h;
-									 openList.quickSort(compPointF);
-								  }
-							   }
-							}
-					   }             
-				  }
-			   return false;
-		   }
-	    //¶¨ÒåopenList
-		var openList = [];
-		//¶¨ÒåcloseList
-		var closeList = [];		
-		start = pathArr[start[0]][start[1]];
-        end = pathArr[end[0]][end[1]];
-		//Ìí¼Ó¿ªÊ¼½Úµãµ½openList;
-		addArrSort(openList,start,compPointF);
-		var finded = false;    
-		var tcount = 0;
-		while((openList.length>0))
-		{
-          var currPoint = openList.pop();	
-		  currPoint.state = 1;
-		  closeList.push(currPoint);
-          finded = processCurrpoint(pathArr,openList,row,col,currPoint,end);
-		  if(finded)
-		  {
-		     break;
-		  }
-		}
-        if(finded)
-		{
-		   var farr = [];
-           var tp = end.parent;
-		   farr.push(end);
-		   while(tp!=null)
-		     {
-				farr.push(tp);
-				tp = tp.parent;
-			 }
-           return farr;
-		}
-		else
-		{
-		   return null;		   
-		}
-	   }
-   }
-   //ÑÕÉ«¹¤¾ß
-   var ColorUtil = win.ColorUtil = {
-     //²úÉúÑÕÉ«´úÂë,r,g,bÖµÎª0~255
-     rgb:function(r,g,b)
-	 {
-		var c = "#"+Number((r<<16)+(g<<8)+b).toString(16);
-        return c;
-	 }
-   }
-   var PubUtil = win.PubUtil = {
-	   merge:function(o,n,override)
-	   {
-		  var o=o||{},n=n||{};
-		  for(p in n)
-		  { 
-			  if(n.hasOwnProperty(p)&&(!o.hasOwnProperty(p)||override))
-				o[p] = n[p];
-		  }
-		  return o;
-	   }
-   }
- }(window))
+        //ï¿½ï¿½ï¿½é¹¤ï¿½ï¿½ï¿½ï¿½
+    var _arrUtil = win.ArrayUtil = {
+            //ï¿½Æ³ï¿½arrï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªidxï¿½ï¿½ï¿½ï¿½Ä¿
+            removeByIdx: function(arr, idx) {
+                arr && arr.splice(idx, 1);
+            },
+            removeFn: function(arr, fn) {
+                var idx = -1;
+                for (var aIdx = 0; aIdx < arr.length; aIdx++) {
+                    if (fn(arr[aIdx])) {
+                        idx = aIdx;
+                        break;
+                    }
+                }
+                if (idx != -1)
+                    arr.splice(idx, 1);
+            },
+            insert: function(arr, pos, ele) {
+                if ((arr.length === 0 && pos === 0) || (pos === arr.length)) {
+                    this.push(ele);
+                } else if (pos < 0 || pos > arr.length) {
+                    return;
+                } else {
+                    var len = arr.length - pos;
+                    arr.splice(pos, len, ele, arr.slice(pos));
+                }
+            },
+            fillWith: function(arr, val) {
+                for (var i = 0, len = arr.length; i < len; i++) {
+                    arr[i] = val;
+                }
+            }
+        }
+        //ï¿½ï¿½Ñ§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    var MathUtil = win.MathUtil = {
+            deg2rad: function(angle) {
+                return angle * 0.017453292;
+            },
+            rad2deg: function(rad) {
+                return rad * 57.29578;
+            },
+            lerp: function(a, b, r) {
+                return a * (1 - r) + b * r;
+            },
+            //return a num between -range to range;
+            randRange: function(range) {
+                return (Math.random() - 0.5) * range * 2;
+            },
+            //x>=min && x<max
+            randInt: function(min, max) {
+                max = max || 0;
+                min = min || 0;
+                var step = Math.abs(max - min);
+                var st = (arguments.length < 2) ? 0 : min;
+                var result;
+                result = st + (Math.ceil(Math.random() * step)) - 1;
+                return result;
+            },
+            dotV2: function(v1, v2) {
+                return v1.x * v2.x + v1.y * v2.y;
+            },
+            lenV2: function(v) {
+                return Math.sqrt(v.x * v.x + v.y * v.y);
+            },
+            normV2: function(v) {
+                var len = MathUtil.lenV2(v),
+                    rlen = 1 / len;
+                return { "x": v.x * rlen, "y": v.y * rlen };
+            },
+            //ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½à½»
+            isInRect: function(x1, y1, x2, y2, x3, y3, x4, y4) {
+                if (x1 > x4 || x2 < x3) return false;
+                if (y1 > y4 || y2 < y3) return false;
+                return true;
+            },
+            //ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½à½»ï¿½ï¿½ï¿½ï¿½
+            getInRect: function(x1, y1, x2, y2, x3, y3, x4, y4) {
+                return [Math.max(x1, x3), Math.max(y1, y3), Math.min(x2, x4), Math.min(y2, y4)];
+            },
+            //ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Rectï¿½ï¿½
+            pInRect: function(x1, y1, x2, y2, w, h) {
+                return x1 >= x2 && x1 <= x2 + w && y1 >= y2 && y1 <= y2 + h;
+            },
+            //ï¿½ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½Ï½ï¿½ÎªÔ­ï¿½ã£¬x1,y1Îªï¿½ï¿½ï¿½ï¿½Äµï¿½×ªï¿½ï¿½ï¿½ï¿½ox,oyÎªÔ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            mapSToCoord: function(x1, y1, ox, oy) {
+                return [x1 - ox, y1 - oy];
+            },
+            //ï¿½ï¿½ï¿½ï¿½polyArrï¿½ï¿½axisï¿½Ïµï¿½Í¶Ó°,polyArrï¿½ï¿½Ò»Ïµï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
+            calcProj: function(axis, polyArr) {
+                var v = { "x": polyArr[0], "y": polyArr[1] };
+                var d, min, max;
+                min = max = MathUtil.dotV2(axis, v);
+                for (var i = 2; i < polyArr.length - 1; i += 2) {
+                    v.x = polyArr[i];
+                    v.y = polyArr[i + 1];
+                    d = MathUtil.dotV2(axis, v);
+                    min = (d < min) ? d : min;
+                    max = (d > max) ? d : max;
+                }
+                return [min, max];
+            },
+            //ï¿½ï¿½ï¿½ï¿½Í¬Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¶ÎµÄ¾ï¿½ï¿½ï¿½s1(min1,max1),s2(min2,max2),ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½0ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ß¶ï¿½ï¿½ï¿½ï¿½à½»; 
+            segDist: function(min1, max1, min2, max2) {
+                if (min1 < min2) {
+                    return min2 - max1;
+                } else {
+                    return min1 - max2;
+                }
+            },
+            //ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½à½»ï¿½ï¿½×²,p1,p2ï¿½ï¿½ï¿½Ú±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            isCollide: function(p1, p2) {
+                //ï¿½ï¿½ï¿½å·¨ï¿½ï¿½ï¿½ï¿½
+                var e = { "x": 0, "y": 0 };
+                var p = p1,
+                    idx = 0,
+                    len1 = p1.length,
+                    len2 = p2.length;
+                for (var i = 0, len = len1 + len2; i < len - 1; i += 2) {
+                    idx = i;
+                    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½
+                    if (i > len1) {
+                        p = p2;
+                        idx = (i - len1);
+                    }
+                    if (i == p.length - 2) {
+                        px = p[0] - p[idx];
+                        py = p[1] - p[idx + 1];
+                    } else {
+                        px = p[idx + 2] - p[idx],
+                            py = p[idx + 3] - p[idx + 1];
+                    }
+                    //ï¿½Ãµï¿½ï¿½ßµÄ·ï¿½ï¿½ï¿½ï¿½ï¿½ 
+                    e.x = -py;
+                    e.y = px;
+                    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½Í¶Ó°
+                    var pp1 = MathUtil.calcProj(e, p1);
+                    var pp2 = MathUtil.calcProj(e, p2);
+                    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¶ï¿½ï¿½Ú·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¾ï¿½ï¿½ë£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë³ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½à½»
+                    if (MathUtil.segDist(pp1[0], pp1[1], pp2[0], pp2[1]) > 0) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        //ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½
+    var _MapUtil = win.MapUtil = {
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            Point: function(x, y) {
+                this.x = x;
+                this.y = y;
+                this.parent = null;
+                this.f = 0;
+                this.g = 0;
+                this.h = 0;
+                //ï¿½ï¿½Ç°ï¿½ï¿½×´Ì¬ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½openlist 1:ï¿½ï¿½Ê¾closelist,-1ï¿½ï¿½Ê¾ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½
+                this.state = -1;
+                //flagï¿½ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½Ç·ï¿½ï¿½Í¨ï¿½ï¿½
+                this.flag = 0;
+            },
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¹ï¿½
+            primMaze: function(r, c) {
+                //ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                function init(r, c) {
+                    var a = new Array(2 * r + 1);
+                    //È«ï¿½ï¿½ï¿½ï¿½1
+                    for (var i = 0, len = a.length; i < len; i++) {
+                        var cols = 2 * c + 1;
+                        a[i] = new Array(cols);
+                        ArrayUtil.fillWith(a[i], 1);
+                    }
+                    //ï¿½Ð¼ï¿½ï¿½ï¿½ï¿½Îª0
+                    for (var i = 0; i < r; i++)
+                        for (var j = 0; j < c; j++) {
+                            a[2 * i + 1][2 * j + 1] = 0;
+                        }
+                    return a;
+                }
+                //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½
+                function process(arr) {
+                    //accï¿½ï¿½ï¿½ï¿½Ñ·ï¿½ï¿½Ê¶ï¿½ï¿½Ð£ï¿½noaccï¿½ï¿½ï¿½Ã»ï¿½Ð·ï¿½ï¿½Ê¶ï¿½ï¿½ï¿½
+                    var acc = [],
+                        noacc = [];
+                    var r = arr.length >> 1,
+                        c = arr[0].length >> 1;
+                    var count = r * c;
+                    for (var i = 0; i < count; i++) { noacc[i] = 0; }
+                    //ï¿½ï¿½ï¿½ï¿½Õµï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½
+                    var offs = [-c, c, -1, 1],
+                        offR = [-1, 1, 0, 0],
+                        offC = [0, 0, -1, 1];
+                    //ï¿½ï¿½ï¿½ï¿½ï¿½noaccÈ¡ï¿½ï¿½Ò»ï¿½ï¿½Î»ï¿½ï¿½
+                    var pos = MathUtil.randInt(count);
+                    noacc[pos] = 1;
+                    acc.push(pos);
+                    while (acc.length < count) {
+                        var ls = -1,
+                            offPos = -1;
+                        offPos = -1;
+                        //ï¿½Ò³ï¿½posÎ»ï¿½ï¿½ï¿½Ú¶ï¿½Î¬ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½
+                        var pr = pos / c | 0,
+                            pc = pos % c,
+                            co = 0,
+                            o = 0;
+                        //ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½ï¿½Ôª
+                        while (++co < 5) {
+                            o = MathUtil.randInt(0, 5);
+                            ls = offs[o] + pos;
+                            var tpr = pr + offR[o];
+                            var tpc = pc + offC[o];
+                            if (tpr >= 0 && tpc >= 0 && tpr <= r - 1 && tpc <= c - 1 && noacc[ls] == 0) { offPos = o; break; }
+                        }
+                        if (offPos < 0) {
+
+                            pos = acc[MathUtil.randInt(acc.length)];
+                        } else {
+                            pr = 2 * pr + 1;
+                            pc = 2 * pc + 1;
+                            //ï¿½ï¿½ï¿½Ú¿Õµï¿½Ôªï¿½Ð¼ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½0
+                            arr[pr + offR[offPos]][pc + offC[offPos]] = 0;
+                            pos = ls;
+                            noacc[pos] = 1;
+                            acc.push(pos);
+                        }
+                    }
+                }
+                var a = init(r, c);
+                process(a);
+                return a;
+            },
+            //ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½Î¬ï¿½ï¿½ï¿½ï¿½(È«ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½0ï¿½ï¿½Ê¾)ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½a*ï¿½ï¿½ï¿½ï¿½Òªï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½
+            convertArrToAS: function(arr) {
+                var r = arr.length,
+                    c = arr[0].length;
+                var a = new Array(r);
+                for (var i = 0; i < r; i++) {
+                    a[i] = new Array(c);
+                    for (var j = 0; j < c; j++) {
+                        var pos = new MapUtil.Point(i, j);
+                        pos.flag = arr[i][j];
+                        a[i][j] = pos;
+                    }
+                }
+                return a;
+            },
+            //A*ï¿½ã·¨,pathArrï¿½ï¿½Ê¾ï¿½ï¿½ó·µ»Øµï¿½Â·ï¿½ï¿½
+            findPathA: function(pathArr, start, end, row, col) {
+                //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ýµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                function addArrSort(descSortedArr, element, compare) {
+                    var left = 0;
+                    var right = descSortedArr.length - 1;
+                    var idx = -1;
+                    var mid = (left + right) >> 1;
+                    while (left <= right) {
+                        var mid = (left + right) >> 1;
+                        if (compare(descSortedArr[mid], element) == 1) {
+                            left = mid + 1;
+                        } else if (compare(descSortedArr[mid], element) == -1) {
+                            right = mid - 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    for (var i = descSortedArr.length - 1; i >= left; i--) {
+                        descSortedArr[i + 1] = descSortedArr[i];
+                    }
+                    descSortedArr[left] = element;
+                    return idx;
+                }
+                //ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Í¬
+                function pEqual(p1, p2) {
+                    return p1.x == p2.x && p1.y == p2.y;
+                }
+                //ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù·ï¿½ï¿½ï¿½
+                function posDist(pos, pos1) {
+                    return (Math.abs(pos1.x - pos.x) + Math.abs(pos1.y - pos.y));
+                }
+
+                function between(val, min, max) {
+                    return (val >= min && val <= max)
+                }
+                //ï¿½È½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½fÖµï¿½ï¿½Ð¡
+                function compPointF(pt1, pt2) {
+                    return pt1.f - pt2.f;
+                }
+                //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½Úµï¿½
+                function processCurrpoint(arr, openList, row, col, currPoint, destPoint) {
+                    //get up,down,left,right direct
+                    var ltx = currPoint.x - 1;
+                    var lty = currPoint.y - 1;
+                    for (var i = 0; i < 3; i++)
+                        for (var j = 0; j < 3; j++) {
+                            var cx = ltx + i;
+                            var cy = lty + j;
+                            if ((cx == currPoint.x || cy == currPoint.y) && between(ltx, 0, row - 1) && between(lty, 0, col - 1)) {
+                                var tp = arr[cx][cy];
+                                if (tp.flag == 0 && tp.state != 1) {
+                                    if (pEqual(tp, destPoint)) {
+                                        tp.parent = currPoint;
+                                        return true;
+                                    }
+                                    if (tp.state == -1) {
+                                        tp.parent = currPoint;
+                                        tp.g = 1 + currPoint.g;
+                                        tp.h = posDist(tp, destPoint);
+                                        tp.f = tp.h + tp.f;
+                                        tp.state = 0
+                                        addArrSort(openList, tp, compPointF);
+                                    } else {
+                                        var g = 1 + currPoint.g
+                                        if (g < tp.g) {
+                                            tp.parent = currPoint;
+                                            tp.g = g;
+                                            tp.f = tp.g + tp.h;
+                                            openList.quickSort(compPointF);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    return false;
+                }
+                //ï¿½ï¿½ï¿½ï¿½openList
+                var openList = [];
+                //ï¿½ï¿½ï¿½ï¿½closeList
+                var closeList = [];
+                start = pathArr[start[0]][start[1]];
+                end = pathArr[end[0]][end[1]];
+                //ï¿½ï¿½ï¿½Ó¿ï¿½Ê¼ï¿½Úµãµ½openList;
+                addArrSort(openList, start, compPointF);
+                var finded = false;
+                var tcount = 0;
+                while ((openList.length > 0)) {
+                    var currPoint = openList.pop();
+                    currPoint.state = 1;
+                    closeList.push(currPoint);
+                    finded = processCurrpoint(pathArr, openList, row, col, currPoint, end);
+                    if (finded) {
+                        break;
+                    }
+                }
+                if (finded) {
+                    var farr = [];
+                    var tp = end.parent;
+                    farr.push(end);
+                    while (tp != null) {
+                        farr.push(tp);
+                        tp = tp.parent;
+                    }
+                    return farr;
+                } else {
+                    return null;
+                }
+            }
+        }
+        //ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½
+    var ColorUtil = win.ColorUtil = {
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½,r,g,bÖµÎª0~255
+        rgb: function(r, g, b) {
+            var c = "#" + Number((r << 16) + (g << 8) + b).toString(16);
+            return c;
+        }
+    }
+    var PubUtil = win.PubUtil = {
+        merge: function(o, n, override) {
+            var o = o || {},
+                n = n || {};
+            for (p in n) {
+                if (n.hasOwnProperty(p) && (!o.hasOwnProperty(p) || override))
+                    o[p] = n[p];
+            }
+            return o;
+        }
+    }
+}(window))
