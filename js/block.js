@@ -9,7 +9,7 @@
                 this.regState();
                 this.bType = bType;
                 this._super();
-                this.hp = 40;
+                this.hp = 100;
                 this.score = 1000;
                 this.sCtx.changeState("idle");
             },

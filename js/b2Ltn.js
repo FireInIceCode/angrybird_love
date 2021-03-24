@@ -22,6 +22,13 @@
                 return;
             }
             var tmpSprite = ba;
+            if (ba.constructor.ClassName == 'Bird' && bb.constructor.ClassName == 'Pig' || ba.constructor.ClassName == 'Pig' && bb.constructor.ClassName == 'Bird') {
+                if (ba.constructor.ClassName == 'Bird') {
+                    bb.text();
+                } else {
+                    ba.text();
+                }
+            }
             //减少血量 
             for (var i = 0; i < 2; i++) {
                 //地板不参与计算
