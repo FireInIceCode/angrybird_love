@@ -290,8 +290,9 @@ function touchHandler(event) {
         false, false, false, 0 /*left*/ , null);
 
 
-
-    first.target.dispatchEvent(simulatedEvent);
+    console.log(simulatedEvent);
+    // first.target.dispatchEvent(simulatedEvent);
+    document.dispatchEvent(simulatedEvent)
 
     event.preventDefault();
 
@@ -310,3 +311,5 @@ function init() {
     document.addEventListener("touchcancel", touchHandler, true);
 
 }
+
+init();
