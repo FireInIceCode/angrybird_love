@@ -92,20 +92,10 @@ TGame 游戏主类
                 }
             },
             //初始化障碍
-            initBlock: function() {
+            initBlock: function(level = 0) {
                 var sc = this.sceneManager.getScene("main");
-                var bks = [
-                        ["stone", "lst", 840, 520, 203, 20, 0, 1000],
-                        ["wood", "mwood", 785, 459, 100, 20, 90],
-                        ["wood", "mwood", 899, 459, 100, 20, 90],
-                        ["wood", "mwood", 840, 400, 168, 22, 0, 60],
-                        ["wood", "mwood", 806, 340, 100, 20, 90],
-                        ["wood", "mwood", 872, 340, 100, 20, 90],
-                        ["wood", "mwood", 840, 280, 100, 20],
-                        ["glass", "sgs", 805, 470, 85, 22, 90, 10],
-                        ["glass", "sgs", 875, 470, 85, 22, 90, 10]
-                    ]
-                    //创建
+                var bks = map[level];
+                //创建
                 for (var i = 0; i < bks.length; i++) {
                     var bk = bks[i];
                     var p = sc.createRObj(Block.ClassName, [bk[0]]);
