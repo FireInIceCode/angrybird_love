@@ -8,7 +8,7 @@
 (function(win) {
     //��Ϸ״̬��
     var _FState = win.FrameState = {
-        //���֡��
+        //���֡��?
         maxFrame: 0,
         //��С֡��
         minFrame: 9999,
@@ -22,7 +22,7 @@
         _sTime: 0,
         //ͳ��ÿ����֡��
         _sTFrame: 0,
-        //����֡״̬�����
+        //����֡״̬�����?
         start: function() {
             this.currTime = this._sTime = new Date();
         },
@@ -43,33 +43,33 @@
         }
     };
     //��ϷIO
-    //�����
+    //�����?
     win.Mouse = (function() {
         var _M = {
             x: 0,
             y: 0,
             ox: 0,
             oy: 0,
-            w: 0, //����м���������
-            bs: [0, 0, 0], //���״̬,
+            w: 0, //����м���������?
+            bs: [0, 0, 0], //���״�?,
             target: null,
             isMoveCacheEnable: false, //�Ƿ����ü�¼�ƶ��㻺��
-            cache: [], //��¼����ƶ��㻺��
+            cache: [], //��¼����ƶ��㻺��?
             dlgEvent: { "up": null, "down": null, "click": null, "dbclick": null, "move": null, "wheel": null } //�����¼�����
         };
-        //Ĭ�ϼ�¼30����Ļ���
+        //Ĭ�ϼ�¼30����Ļ���?
         var _MAX_POINT_CACHE = 60;
         var eWeelDelta = 120;
         //����Ŀ��
         function setTarget(e) {
             _M.target = e.target;
         }
-        //�������λ��
+        //�������λ��?
         function setMPos(e) {
             _M.x = e.pageX;
             _M.y = e.pageY;
         }
-        //������갴��״̬
+        //������갴��״�?
         function setMBtnState(e, flag) {
             _M.bs[e.button] = flag;
         }
@@ -88,7 +88,7 @@
                 y = _M.cache.shift();
             return [x, y];
         }
-        //������л���
+        //������л���?
         function clearCache() {
             _M.cache = [];
         }
@@ -100,7 +100,7 @@
         function delDelegatedEvent(eName) {
             _M.dlgEvent[eName] = null;
         }
-        //�����Ƿ����
+        //�����Ƿ����?
         function setEnabled(flag) {
             if (flag) {
                 document.oncontextmenu = function() { return false };
@@ -231,7 +231,7 @@
                 SHIFT: 16,
                 ALT: 18,
                 CTRL: 17,
-                //��¼���̻��������
+                //��¼���̻��������?
                 MAX_KEY_CACHE: 20,
                 //��¼����״̬
                 states: new Array(255),
@@ -247,7 +247,7 @@
                 delDLG: function(eName) {
                     this.dlgEvent[eName] = null;
                 },
-                //�����Ƿ����
+                //�����Ƿ����?
                 setEnabled: function(flag) {
                     var self = this;
                     if (flag) {
