@@ -37,6 +37,7 @@
                         break;
                     case "stone":
                         density = 4;
+                        friction=1;
                         restitution = 0.01;
                         break;
                 }

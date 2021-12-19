@@ -2,6 +2,7 @@
 TGame 游戏主类
 */
 (function(win) {
+    window.birdCnt=0;
     var _Game = Game.extend({
             frames: 60,
             birds: [],
@@ -19,6 +20,7 @@ TGame 游戏主类
             b2Ltn: null,
             //弹弓最大拉力
             power: 27,
+            level:0,
             init: function() {
                 this._super();
                 var scm = this.sceneManager;
@@ -56,9 +58,10 @@ TGame 游戏主类
             },
             //创建小鸟
             createBird: function(r, x, y) {
+                window.birdCnt++;
                 var sc = this.sceneManager.getScene("main");
                 var bird = sc.createRObj(Bird.ClassName, [r]);
-                bird.setAnims(ResManager.getAnimationsByName("sprite", "bird"));
+                bird.setAnims(ResManager.getAnimationsByName("sprite", levelsprite[this.level][0]));
                 bird.moveTo(x, y);
                 bird.dx = -1;
                 bird.w = bird.h = bird.r * 2;
@@ -75,26 +78,28 @@ TGame 游戏主类
                 this.blocks.push(bird);
             },
             //创建小猪
-            createPig: function(x, y) {
+            createPig: function(x, y,shape) {
                 var sc = this.sceneManager.getScene("main");
                 var p = sc.createRObj(Pig.ClassName, [16]);
-                p.setAnims(ResManager.getAnimationsByName("sprite", "pig"));
+                p.setAnims(ResManager.getAnimationsByName("sprite", levelsprite[this.level][1]));
                 p.moveTo(x, y);
                 p.w = p.h = p.r * 2;
                 //   p.setAnimSpeed(0.3);
-                p.addToB2Word();
+                p.addToB2Word(shape);
                 this.pigs.push(p);
             },
             //初始化小鸟
             initBird: function(r, num) {
+                this.avaBirdIdx=-1;
+                this.currBird=null;
                 for (var i = 0; i < num; i++) {
                     this.createBird(r, MathUtil.randInt(130, 220), this.skyLineY - r);
                 }
             },
             //初始化障碍
-            initBlock: function(level = 0) {
+            initBlock: function() {
                 var sc = this.sceneManager.getScene("main");
-                var bks = map[level];
+                var bks = map[this.level];
                 //创建
                 for (var i = 0; i < bks.length; i++) {
                     var bk = bks[i];
@@ -111,12 +116,9 @@ TGame 游戏主类
             //初始化小猪
             initPig: function() {
                 var sc = this.sceneManager.getScene("main");
-                var pigs = [
-                    [840, 490],
-                    [840, 370]
-                ];
+                var pigs=levelpig[this.level];
                 for (var i = 0; i < pigs.length; i++) {
-                    var pig = this.createPig(pigs[i][0], pigs[i][1]);
+                    var pig = this.createPig(pigs[i][0], pigs[i][1],pigs[i][2]);
                 }
             },
             //创建弹弓
@@ -193,6 +195,17 @@ TGame 游戏主类
                     self.birdReady();
                     //处理精灵销毁
                     self.cleanSprite();
+                    if(window.birdCnt==0){
+                        self.level++;
+                        for(var body=B2Util.b2World.GetBodyList();body!=null;body=body.GetNext()){
+                            B2Util.b2World.DestroyBody(body);
+                        }
+                        self.birds=[];
+                        self.pigs=[];
+                        self.blocks=[];
+                        self.sceneManager.getCurrentScene().clearRObj()
+                        self.initSprite();
+                    }
                 }
                 this.addListener(appLtn);
                 //设置box2d监听器 

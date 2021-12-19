@@ -74,6 +74,7 @@
             dead: function() {
                 var self = this;
                 this._super();
+                window.birdCnt--;
                 TGame.createBoom(this.x, this.y, function() {
                     self.effColl();
                 })

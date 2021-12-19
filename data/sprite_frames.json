@@ -1,15 +1,31 @@
 {
-    "pig": {
+    "pigzsq": {
         "type": 1,
-        "img": "pig",
+        "img": "pigzsq",
         "rc": [1, 1, 1080, 1080],
         "animations": {
             "def": [0]
         }
     },
-    "bird": {
+    "birdwgl": {
         "type": 1,
-        "img": "bird",
+        "img": "birdwgl",
+        "rc": [1, 1, 1080, 1080],
+        "animations": {
+            "def": [0]
+        }
+    },
+    "pigfqg": {
+        "type": 1,
+        "img": "pigfqg",
+        "rc": [1, 1, 1080, 1080],
+        "animations": {
+            "def": [0]
+        }
+    },
+    "birdfsy": {
+        "type": 1,
+        "img": "birdfsy",
         "rc": [1, 1, 1080, 1080],
         "animations": {
             "def": [0]
